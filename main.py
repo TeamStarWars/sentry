@@ -368,6 +368,39 @@ def executer_commande(cmd):
             return "Usage: breach-check <email>"
         return defense_plus.verifier_brèche(email)
 
+    elif action == "arp-detect":
+        return "\n".join(defense_plus.detecter_arp_spoof())
+
+    elif action == "rdp-brute":
+        return "\n".join(defense_plus.detecter_rdp_brute())
+
+    elif action == "smb-shares":
+        return "\n".join(defense_plus.scan_shares())
+
+    elif action == "password-policy":
+        return "\n".join(defense_plus.auditer_password_policy())
+
+    elif action == "autoruns-deep":
+        return "\n".join(defense_plus.autoruns_deep())
+
+    elif action == "restore-point":
+        return defense_plus.creer_restore_point()
+
+    elif action == "restore-point-list":
+        return defense_plus.lister_restore_points()
+
+    elif action == "services-audit":
+        return "\n".join(defense_plus.auditer_services())
+
+    elif action == "cert-scan":
+        return "\n".join(defense_plus.scanner_certificats())
+
+    elif action == "net-bandwidth":
+        return "\n".join(defense_plus.bande_passante())
+
+    elif action == "process-timeline":
+        return defense_plus.process_timeline()
+
     elif action == "exploit-scan":
         return exploit.scanner()
 
@@ -785,6 +818,17 @@ def afficher_help():
     bitlocker                 Verifier chiffrement volumes
     doh                       Forcer DNS over HTTPS (Cloudflare)
     doh-status                Statut DoH
+    arp-detect                Detecter ARP spoofing (MITM)
+    rdp-brute                 Detecter tentatives RDP forcees
+    smb-shares                Scanner partages SMB exposes
+    password-policy           Auditer politique mots de passe
+    autoruns-deep             Scanner 30+ points de demarrage
+    restore-point             Creer un point de restauration
+    restore-point-list        Lister les points de restauration
+    services-audit            Detecter services vulnérables
+    cert-scan                 Verifier certificats SSL expires
+    net-bandwidth             Consommation bande passante par carte
+    process-timeline          Historique processus creés récemment
     breach-check <email>      Verifier si email a fuité
 
   --- PROCESSUS & COMPORTEMENT ---

@@ -1,6 +1,6 @@
-"""Defense+ — protections avancees : anti-injection, anti-hollowing, clipboard guard, hardening"""
+"""Defense+ — protections avancees : anti-injection, anti-hollowing, clipboard guard, hardening, reseau, audit"""
 
-import subprocess, json, os, re, ctypes, hashlib, urllib.request
+import subprocess, json, os, re, ctypes, hashlib, urllib.request, datetime
 from core.safe import esc, valider_pid
 
 def _ps(cmd, timeout=15):
@@ -208,3 +208,245 @@ def verifier_brèche(email):
         return f"{email}: aucune breche detectee"
     except:
         return "Erreur verification (pas de connexion ?)"
+
+# ─── ARP SPOOFING DETECTOR ───
+
+def detecter_arp_spoof():
+    """Detecte les ARP spoofing en comparant les MAC de la passerelle"""
+    resultats = []
+    r = _ps("Get-NetNeighbor -AddressFamily IPv4 | Where {$_.IPAddress -like '192.168.*' -or $_.IPAddress -like '10.*' -or $_.IPAddress -like '172.*'} | Select IPAddress,LinkLayerAddress | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        ips_vues = {}
+        for d in data:
+            if isinstance(d, dict):
+                ip = d.get("IPAddress","")
+                mac = d.get("LinkLayerAddress","")
+                if ip in ips_vues and ips_vues[ip] != mac:
+                    resultats.append(f"ARP SPOOF: {ip} a deux MAC differentes ({ips_vues[ip]} et {mac})")
+                ips_vues[ip] = mac
+    except:
+        pass
+    return resultats if resultats else ["Aucun ARP spoofing detecte"]
+
+# ─── RDP BRUTE FORCE DETECTOR ───
+
+def detecter_rdp_brute():
+    """Analyse les logs pour les tentatives RDP forcees"""
+    resultats = []
+    r = _ps("Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4625} -MaxEvents 50 -ErrorAction SilentlyContinue | Select TimeCreated,Message | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        ips = {}
+        for e in data:
+            if isinstance(e, dict):
+                msg = e.get("Message","")
+                ip = "?"
+                m = re.search(r"Adresse réseau source\s*:\s*(\S+)", msg)
+                if m: ip = m.group(1)
+                m2 = re.search(r"Source Network Address[:\s]+(\S+)", msg)
+                if m2: ip = m2.group(1)
+                if ip not in ("?", "127.0.0.1", "-"):
+                    ips[ip] = ips.get(ip, 0) + 1
+        for ip, count in sorted(ips.items(), key=lambda x: -x[1]):
+            if count >= 5:
+                resultats.append(f"BRUTE FORCE: {ip} - {count} tentatives echouees")
+        if not resultats:
+            resultats.append("Aucune tentative RDP forcee detectee")
+    except:
+        resultats.append("Erreur analyse logs RDP")
+    return resultats
+
+# ─── SMB SHARES SCAN ───
+
+def scan_shares():
+    """Scanne les partages SMB exposes sur le reseau local"""
+    resultats = []
+    r = _ps("Get-SmbShare -ErrorAction SilentlyContinue | Select Name,Path,Description,ShareType | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        if data:
+            resultats.append(f"Partages SMB ({len(data)}):")
+            for d in data:
+                if isinstance(d, dict):
+                    typ = d.get("ShareType",0)
+                    if typ == 0:
+                        resultats.append(f"  {d.get('Name','?')} -> {d.get('Path','?')}")
+            if len(resultats) == 1:
+                resultats.append("  Aucun partage utilisateur")
+        else:
+            resultats.append("Aucun partage SMB")
+    except:
+        resultats.append("Erreur scan SMB (admin requis)")
+    return resultats
+
+# ─── PASSWORD POLICY AUDIT ───
+
+def auditer_password_policy():
+    """Audite la politique de mots de passe Windows"""
+    resultats = []
+    r = _ps("Get-CimInstance Win32_AccountPolicy | Select MaximumPasswordAge,MinimumPasswordAge,MinimumPasswordLength,PasswordHistorySize | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else {}
+        if isinstance(data, dict):
+            mpl = data.get("MinimumPasswordLength", 0)
+            mpa = data.get("MaximumPasswordAge", 0)
+            phs = data.get("PasswordHistorySize", 0)
+            resultats.append(f"Longueur minimale: {mpl} car. {'FAIBLE' if mpl < 8 else 'OK'}")
+            resultats.append(f"Age max: {mpa} jours {'TROP LONG' if mpa > 90 else 'OK'}")
+            resultats.append(f"Historique: {phs} mdp {'FAIBLE' if phs < 10 else 'OK'}")
+    except:
+        resultats.append("Erreur politique mdp")
+    return resultats
+
+# ─── AUTORUNS DEEP ───
+
+def autoruns_deep():
+    """Scanne les emplacements de demarrage (30+ reg, dossier taches)"""
+    resultats = []
+    emplacements = [
+        ("HKLM:Run", "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run' -ErrorAction SilentlyContinue"),
+        ("HKCU:Run", "Get-ItemProperty 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run' -ErrorAction SilentlyContinue"),
+        ("HKLM:RunOnce", "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce' -ErrorAction SilentlyContinue"),
+        ("HKCU:RunOnce", "Get-ItemProperty 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce' -ErrorAction SilentlyContinue"),
+        ("Startup Folder", "Get-ChildItem \"$env:APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\" -ErrorAction SilentlyContinue"),
+        ("Common Startup", "Get-ChildItem \"$env:PROGRAMDATA\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\" -ErrorAction SilentlyContinue"),
+    ]
+    total = 0
+    for label, cmd in emplacements:
+        r = _ps(cmd, 10)
+        props = re.findall(r"([\w]+)\s+:\s+(.+)", r)
+        for prop, val in props:
+            if prop.lower() not in ("pspath", "psparentpath", "pschildname", "psprovider"):
+                total += 1
+                if total <= 20:
+                    resultats.append(f"  {label}: {prop} = {val.strip()[:80]}")
+    resultats.insert(0, f"Autoruns ({total} entrees trouvees):" if total > 0 else "Aucun autorun")
+    return resultats
+
+# ─── RESTORE POINT ───
+
+def creer_restore_point():
+    """Cree un point de restauration systeme"""
+    r = _ps("Checkpoint-Computer -Description 'Sentry Restore' -RestorePointType MODIFY_SETTINGS -ErrorAction SilentlyContinue; Write-Output 'OK'", 60)
+    if "ok" in r.lower():
+        return "Point de restauration cree"
+    try:
+        r2 = _ps("Enable-ComputerRestore -Drive 'C:\\' -ErrorAction SilentlyContinue; Checkpoint-Computer -Description 'Sentry Restore' -RestorePointType MODIFY_SETTINGS -ErrorAction SilentlyContinue; Write-Output 'OK'", 60)
+        if "ok" in r2.lower():
+            return "Protection activee + point de restauration cree"
+    except:
+        pass
+    return "Erreur (admin requis)"
+
+def lister_restore_points():
+    r = _ps("Get-ComputerRestorePoint | Select SequenceNumber,Description,CreationTime,RestorePointType | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        if data:
+            lignes = [f"Points de restauration ({len(data)}):"]
+            for d in data:
+                if isinstance(d, dict):
+                    t = str(d.get("CreationTime","?"))[:19]
+                    lignes.append(f"  {t} - {d.get('Description','?')}")
+            return "\n".join(lignes)
+    except:
+        pass
+    return "Aucun point de restauration"
+
+# ─── SERVICES AUDIT ───
+
+def auditer_services():
+    """Repère les services vulnérables (droits eleves, exposés)"""
+    resultats = []
+    r = _ps("Get-CimInstance Win32_Service | Where {$_.StartMode -eq 'Auto' -and $_.PathName -ne ''} | Select Name,DisplayName,PathName,StartName,State | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        for s in data:
+            if isinstance(s, dict):
+                path = s.get("PathName","").lower()
+                user = s.get("StartName","").lower()
+                if "localsystem" in user or "local system" in user:
+                    if "temp" in path or "users" in path or "appdata" in path:
+                        resultats.append(f"VULN: {s.get('Name','?')} tourne en SYSTEM depuis un dossier utilisateur ({path[:60]})")
+                if user in ("", ".\\default"):
+                    resultats.append(f"SUSPECT: {s.get('Name','?')} - compte par defaut")
+    except:
+        pass
+    return resultats if resultats else ["Aucun service vulnérable detecte"]
+
+# ─── CERT SCAN ───
+
+def scanner_certificats():
+    """Verifie les certificats SSL expires ou frauduleux"""
+    resultats = []
+    r = _ps("Get-ChildItem Cert:\\LocalMachine\\My -ErrorAction SilentlyContinue | Select Subject,NotAfter,Thumbprint,Issuer | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        maintenant = datetime.datetime.now()
+        for c in data:
+            if isinstance(c, dict):
+                sujet = c.get("Subject","?")
+                notafter = c.get("NotAfter","")
+                if notafter:
+                    try:
+                        date = datetime.datetime.fromisoformat(notafter.replace("Z","+00:00"))
+                        reste = (date - maintenant).days
+                        if reste < 0:
+                            resultats.append(f"EXPIRE: {sujet[:50]} (depuis {-reste} jours)")
+                        elif reste < 30:
+                            resultats.append(f"BIENTOT: {sujet[:50]} ({reste} jours restants)")
+                    except:
+                        pass
+    except:
+        pass
+    return resultats if resultats else ["Aucun probleme de certificat"]
+
+# ─── NET BANDWIDTH ───
+
+def bande_passante():
+    """Montre les programmes qui consomment le plus de bande passante"""
+    resultats = []
+    r = _ps("Get-NetAdapterStatistics -ErrorAction SilentlyContinue | Select Name,ReceivedBytes,SentBytes | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        for n in data:
+            if isinstance(n, dict):
+                rx = int(n.get("ReceivedBytes",0)) / (1024**2)
+                tx = int(n.get("SentBytes",0)) / (1024**2)
+                resultats.append(f"  {n.get('Name','?')}: {rx:.0f} Mo recus, {tx:.0f} Mo envoyes")
+    except:
+        pass
+    return resultats if resultats else ["Aucune info bande passante"]
+
+# ─── PROCESS TIMELINE ───
+
+def process_timeline(heures=24):
+    """Affiche les processus crees recemment via les logs"""
+    resultats = []
+    r = _ps("Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4688} -MaxEvents 30 -ErrorAction SilentlyContinue | Select TimeCreated,Message | ConvertTo-Json")
+    try:
+        data = json.loads(r) if r.strip() else []
+        if isinstance(data, dict): data = [data]
+        if not data:
+            return "Aucun evenement de creation de processus"
+        lignes = [f"Processus crees (derniers {heures}h):"]
+        for e in data:
+            if isinstance(e, dict):
+                t = str(e.get("TimeCreated","?"))[:19]
+                msg = e.get("Message","")
+                m = re.search(r"Nouveau processus.*Nom.*[.:]\s*(\S+)", msg)
+                if m:
+                    pid = re.search(r"ID de la nouvelle tache[:\s]+(\d+)", msg)
+                    pid_str = f"PID {pid.group(1)}" if pid else ""
+                    lignes.append(f"  [{t}] {m.group(1)}")
+        return "\n".join(lignes[:15])
+    except:
+        return "Erreur lecture logs (admin requis)"
