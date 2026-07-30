@@ -516,13 +516,22 @@ def executer_commande(cmd):
 
     elif action == "phare":
         if len(parts) > 1 and parts[1] == "stop":
-            return cloud_phare.stop()
+            cloud_phare.stop()
+            return "Phare arrete"
         if len(parts) > 1 and parts[1] == "status":
             return cloud_phare.status()
         port = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 8089
         bind = parts[3] if len(parts) > 3 else "127.0.0.1"
         token = parts[4] if len(parts) > 4 else None
-        return cloud_phare.start(port, bind, token)
+        msg = cloud_phare.start(port, bind, token)
+        afficher(msg)
+        print("\nAppuyez sur Ctrl+C pour arreter le Phare...")
+        try:
+            while cloud_phare.SERVEUR_ACTIF:
+                import time; time.sleep(1)
+        except KeyboardInterrupt:
+            cloud_phare.stop()
+            return "Phare arrete"
 
     elif action == "phare-join":
         if len(parts) < 2:
@@ -536,14 +545,31 @@ def executer_commande(cmd):
             return "Usage: phare-client <ip_phare> [port] [token]"
         port = int(parts[2]) if len(parts) > 2 else 8089
         token = parts[3] if len(parts) > 3 else None
-        return cloud_phare.start_client(parts[1], port, token)
+        msg = cloud_phare.start_client(parts[1], port, token)
+        afficher(msg)
+        print("\nHeartbeat actif. Ctrl+C pour arreter...")
+        try:
+            while True:
+                import time; time.sleep(1)
+        except KeyboardInterrupt:
+            cloud_phare.SERVEUR_ACTIF = False
+            return "Client Phare arrete"
 
     elif action == "creator":
         if len(parts) > 1 and parts[1] == "stop":
-            return creator_panel.stop()
+            creator_panel.stop()
+            return "Panel arrete"
         if len(parts) > 1 and parts[1] == "status":
             return creator_panel.status()
-        return creator_panel.start()
+        msg = creator_panel.start()
+        afficher(msg)
+        print("\nAppuyez sur Ctrl+C pour arreter le panel...")
+        try:
+            while creator_panel.PANEL_ACTIF:
+                import time; time.sleep(1)
+        except KeyboardInterrupt:
+            creator_panel.stop()
+            return "Panel arrete"
 
     elif action == "creator-list":
         return creator_panel.display()
