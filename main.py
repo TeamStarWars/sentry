@@ -18,7 +18,7 @@ from core import crypto_protect, atd, web_protect, vuln_scan, firewall_adv
 from core import ransomware_remedi, antispam, privacy, safepay, vpn
 from core import antitheft, optimizer, data_protect, profile
 from core import cloud_phare, ssl_check, pe_analyze, yara_scan, sensors
-from core import password_audit, honeypot, forensic, osint_tools, telegram_bot, automation, creator_panel, malware_detect
+from core import password_audit, honeypot, forensic, osint_tools, telegram_bot, automation, creator_panel, malware_detect, defense_plus
 
 SORTIE_JSON = False
 SORTIE_CSV = False
@@ -337,6 +337,36 @@ def executer_commande(cmd):
         if arg.isdigit():
             return malware_detect.analyser_menace(pid=int(arg))
         return malware_detect.analyser_menace(chemin=" ".join(parts[1:]))
+
+    elif action == "dll-inject":
+        return "\n".join(defense_plus.scan_dll_injection())
+
+    elif action == "hollowing":
+        return "\n".join(defense_plus.scan_process_hollowing())
+
+    elif action == "clipboard-guard":
+        return "\n".join(defense_plus.detecter_clipboard_watchers())
+
+    elif action == "defender-hardening":
+        return defense_plus.defender_hardening()
+
+    elif action == "defender-status":
+        return defense_plus.statut_hardening()
+
+    elif action == "bitlocker":
+        return defense_plus.verifier_bitlocker()
+
+    elif action == "doh":
+        return defense_plus.forcer_doh()
+
+    elif action == "doh-status":
+        return defense_plus.statut_doh()
+
+    elif action == "breach-check":
+        email = parts[1] if len(parts) > 1 else ""
+        if not email:
+            return "Usage: breach-check <email>"
+        return defense_plus.verifier_brèche(email)
 
     elif action == "exploit-scan":
         return exploit.scanner()
@@ -745,6 +775,17 @@ def afficher_help():
     malware-bootkit           Detecter bootkits
     malware-adware            Detecter adwares/PUPs
     malware-analyse <PID/path>Analyser processus ou fichier
+
+  --- DEFENSE+ (PROTECTIONS AVANCEES) ---
+    dll-inject                Scanner DLL injectees
+    hollowing                 Detecter process hollowing
+    clipboard-guard           Surveiller espions presse-papier
+    defender-hardening        Appliquer reglages max Defender
+    defender-status           Verifier statut hardening
+    bitlocker                 Verifier chiffrement volumes
+    doh                       Forcer DNS over HTTPS (Cloudflare)
+    doh-status                Statut DoH
+    breach-check <email>      Verifier si email a fuité
 
   --- PROCESSUS & COMPORTEMENT ---
     processus                 Lister les processus

@@ -17,4 +17,4 @@ from core import antitheft, optimizer, data_protect, profile
 # v2.5 - Cloud, forensic, OSINT, automate
 from core import cloud_phare, ssl_check, pe_analyze, yara_scan, sensors
 from core import password_audit, honeypot, forensic, osint_tools, telegram_bot, automation
-from core import creator_panel, malware_detect
+from core import creator_panel, malware_detect, defense_plus
