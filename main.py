@@ -18,7 +18,7 @@ from core import crypto_protect, atd, web_protect, vuln_scan, firewall_adv
 from core import ransomware_remedi, antispam, privacy, safepay, vpn
 from core import antitheft, optimizer, data_protect, profile
 from core import cloud_phare, ssl_check, pe_analyze, yara_scan, sensors
-from core import password_audit, honeypot, forensic, osint_tools, telegram_bot, automation, creator_panel, malware_detect, defense_plus
+from core import password_audit, honeypot, forensic, osint_tools, telegram_bot, automation, creator_panel, malware_detect, defense_plus, widget
 
 SORTIE_JSON = False
 SORTIE_CSV = False
@@ -637,6 +637,13 @@ def executer_commande(cmd):
     elif action == "creator-list":
         return creator_panel.display()
 
+    elif action == "widget":
+        if len(parts) > 1 and parts[1] == "stop":
+            return widget.arreter()
+        if len(parts) > 1 and parts[1] == "status":
+            return widget.statut()
+        return widget.demarrer()
+
     elif action == "ssl-check":
         hote = parts[1] if len(parts) > 1 else ""
         if not hote:
@@ -969,13 +976,18 @@ def afficher_help():
     phare-join <ip> [port] [tok]  Connecter un client au Phare
     phare-client <ip> [port][tok] Mode client heartbeat
 
-  --- PANEL CREATEUR ---
+   --- PANEL CREATEUR ---
     creator [port]                Lancer le panel web createur
     creator stop                  Arreter le panel
     creator status                Statut du panel
     creator-list                  Resume console des machines
 
-  --- FLAGS ---
+   --- WIDGET DESKTOP ---
+    widget                        Lancer le widget overlay stats PC
+    widget stop                   Arreter le widget
+    widget status                 Statut du widget
+
+   --- FLAGS ---
     --json                    Sortie en JSON
     --csv                     Sortie en CSV
 
