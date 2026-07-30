@@ -5,7 +5,7 @@ def monitorer(duree=30):
         fin = time.time() + duree
         while time.time() < fin:
             os.system("cls" if os.name == "nt" else "clear")
-            print("=== Sentry MONITOR (Ctrl+C pour quitter) ===\n")
+            print("=== Vindex MONITOR (Ctrl+C pour quitter) ===\n")
 
             try:
                 r = subprocess.run(["powershell", "-NoProfile", "-Command",

@@ -48,7 +48,7 @@ def detecter_vpn():
 def kill_switch():
     try:
         r = subprocess.run(["powershell", "-NoProfile", "-Command",
-            "Get-NetFirewallRule -DisplayName 'Sentry*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule -ErrorAction SilentlyContinue; New-NetFirewallRule -DisplayName 'Sentry KillSwitch' -Direction Outbound -Action Block -Profile Any -ErrorAction SilentlyContinue | Out-Null; Write-Output 'OK'"],
+            "Get-NetFirewallRule -DisplayName 'Vindex*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule -ErrorAction SilentlyContinue; New-NetFirewallRule -DisplayName 'Vindex KillSwitch' -Direction Outbound -Action Block -Profile Any -ErrorAction SilentlyContinue | Out-Null; Write-Output 'OK'"],
             capture_output=True, text=True, timeout=15)
         return "Kill switch active: tout le trafic sortant bloque"
     except Exception as e:
@@ -57,7 +57,7 @@ def kill_switch():
 def kill_switch_desactiver():
     try:
         subprocess.run(["powershell", "-NoProfile", "-Command",
-            "Get-NetFirewallRule -DisplayName 'Sentry*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule -ErrorAction SilentlyContinue"],
+            "Get-NetFirewallRule -DisplayName 'Vindex*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule -ErrorAction SilentlyContinue"],
             capture_output=True, text=True, timeout=10)
         return "Kill switch desactive"
     except Exception as e:

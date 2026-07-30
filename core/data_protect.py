@@ -11,7 +11,7 @@ def chiffrer_fichier(chemin):
             data = f.read()
         key = hashlib.sha256(os.urandom(32)).digest()
         encrypted = bytes([data[i] ^ key[i % len(key)] for i in range(len(data))])
-        nom_sortie = chemin + ".sentry"
+        nom_sortie = chemin + ".vindex"
         with open(nom_sortie, "wb") as f:
             f.write(key[:16])
             f.write(encrypted)
@@ -21,8 +21,8 @@ def chiffrer_fichier(chemin):
         return "Erreur chiffrement"
 
 def dechiffrer_fichier(chemin):
-    if not os.path.isfile(chemin) or not chemin.endswith(".sentry"):
-        return "Fichier .sentry introuvable"
+    if not os.path.isfile(chemin) or not chemin.endswith(".vindex"):
+        return "Fichier .vindex introuvable"
     try:
         with open(chemin, "rb") as f:
             key = f.read(16)
@@ -30,7 +30,7 @@ def dechiffrer_fichier(chemin):
         key = key * (len(encrypted) // 16 + 1)
         key = key[:len(encrypted)]
         decrypted = bytes([encrypted[i] ^ key[i] for i in range(len(encrypted))])
-        nom_sortie = chemin.replace(".sentry", "")
+        nom_sortie = chemin.replace(".vindex", "")
         with open(nom_sortie, "wb") as f:
             f.write(decrypted)
         os.remove(chemin)

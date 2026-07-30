@@ -1,6 +1,6 @@
 import os, datetime, json
 
-LOG_FILE = os.path.join(os.path.dirname(__file__), "..", "sentry_alerts.json")
+LOG_FILE = os.path.join(os.path.dirname(__file__), "..", "vindex_alerts.json")
 
 def ajouter_entree(categorie, message):
     entree = {

@@ -1,9 +1,9 @@
 ﻿import subprocess, json, os, datetime, re
 from core.safe import esc
 
-TASKS_FILE = os.path.join(os.path.dirname(__file__), "..", "sentry_tasks.json")
+TASKS_FILE = os.path.join(os.path.dirname(__file__), "..", "vindex_tasks.json")
 
-def planifier_journalier(heure, commande, nom="SentryScan"):
+def planifier_journalier(heure, commande, nom="VindexScan"):
     import re
     if not re.match(r"^\d{1,2}:\d{2}$", str(heure)):
         return "Heure invalide (ex: 14:30)"
@@ -28,7 +28,7 @@ def planifier_journalier(heure, commande, nom="SentryScan"):
 def lister_taches():
     try:
         r = subprocess.run(["powershell", "-NoProfile", "-Command",
-            "Get-ScheduledTask -TaskName 'Sentry*' -ErrorAction SilentlyContinue | Select TaskName,State,Triggers | ConvertTo-Json"],
+            "Get-ScheduledTask -TaskName 'Vindex*' -ErrorAction SilentlyContinue | Select TaskName,State,Triggers | ConvertTo-Json"],
             capture_output=True, text=True, timeout=10)
         data = json.loads(r.stdout) if r.stdout.strip() else []
         if isinstance(data, dict): data = [data]
@@ -64,10 +64,10 @@ def supprimer_tache(nom):
 
 def backup():
     chemin = os.path.dirname(os.path.dirname(__file__))
-    fichiers = ["sentry_profile.json", "sentry_alerts.json", "sentry_tasks.json"]
+    fichiers = ["vindex_profile.json", "vindex_alerts.json", "vindex_tasks.json"]
     try:
         import zipfile
-        nom = f"sentry_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        nom = f"vindex_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
         with zipfile.ZipFile(nom, "w") as z:
             for f in fichiers:
                 fp = os.path.join(chemin, f)

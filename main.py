@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sentry — Outils de diagnostic, cybersecurite et analyse"""
+"""Vindex — Outils de diagnostic, cybersecurite et analyse"""
 
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
@@ -255,7 +255,7 @@ def executer_commande(cmd):
         return alerte.configurer_webhook(url)
 
     elif action == "alerte-envoyer":
-        message = " ".join(parts[1:]) if len(parts) > 1 else "Test depuis Sentry"
+        message = " ".join(parts[1:]) if len(parts) > 1 else "Test depuis Vindex"
         return alerte.envoyer(message)
 
     elif action == "protect":
@@ -736,7 +736,7 @@ def executer_commande(cmd):
         return telegram_bot.arreter()
 
     elif action == "tg-send":
-        message = " ".join(parts[1:]) if len(parts) > 1 else "Test Sentry"
+        message = " ".join(parts[1:]) if len(parts) > 1 else "Test Vindex"
         return telegram_bot.envoyer(message)
 
     elif action == "tg-status":
@@ -747,7 +747,7 @@ def executer_commande(cmd):
             return "Usage: schedule-add <heure> <commande> [nom]"
         heure = parts[1]
         cmd_sched = " ".join(parts[2:])
-        nom = f"Sentry{cmd_sched.split()[0].capitalize()}"
+        nom = f"Vindex{cmd_sched.split()[0].capitalize()}"
         return automation.planifier_journalier(heure, cmd_sched, nom)
 
     elif action == "schedule-list":
@@ -773,7 +773,7 @@ def executer_commande(cmd):
 def afficher_help():
     print("""
   ============================================================
-       SENTRY v2.0 - AIDE COMPLETE (80+ commandes)
+       VINDEX v2.0 - AIDE COMPLETE (80+ commandes)
   ============================================================
 
   --- RESEAU ---
@@ -922,7 +922,7 @@ def afficher_help():
     logs-securite [nb]        Evenements de securite
     logs-apps [nb]            Evenements Applications
     logs-liste                Journaux disponibles
-    seclog [nb]               Journal des alertes Sentry
+    seclog [nb]               Journal des alertes Vindex
     seclog-clear              Vider le journal
     persistence               Scanner points de persistence
     registry-scan             Analyser registre suspect
@@ -985,7 +985,7 @@ def afficher_help():
 def mode_interactif():
     print("""
   ============================================
-     SENTRY v2.0
+     VINDEX v2.0
      Cyber - Analyse - Protection - Surveillance
   ============================================
     """)
@@ -1000,7 +1000,7 @@ def mode_interactif():
             if resultat is None:
                 afficher_help()
             elif resultat == "__EXIT__":
-                print("Sentry termine.")
+                print("Vindex termine.")
                 break
             else:
                 afficher(resultat)

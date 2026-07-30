@@ -38,7 +38,7 @@ def bloquer_app(nom_app):
         return "Nom d'application invalide"
     try:
         r = subprocess.run(["powershell", "-NoProfile", "-Command",
-            f"New-NetFirewallRule -DisplayName 'Sentry Block {esc(nom_app)}' -Direction Outbound -Program '{esc(nom_app)}' -Action Block -ErrorAction SilentlyContinue | Out-Null; Write-Output 'OK'"],
+            f"New-NetFirewallRule -DisplayName 'Vindex Block {esc(nom_app)}' -Direction Outbound -Program '{esc(nom_app)}' -Action Block -ErrorAction SilentlyContinue | Out-Null; Write-Output 'OK'"],
             capture_output=True, text=True, timeout=10)
         return f"Application bloquee: {nom_app}"
     except:
@@ -50,7 +50,7 @@ def mode_strict():
             "Set-NetFirewallProfile -All -DefaultInboundAction Block -DefaultOutboundAction Block -ErrorAction SilentlyContinue; Write-Output 'OK'"],
             capture_output=True, text=True, timeout=15)
         r2 = subprocess.run(["powershell", "-NoProfile", "-Command",
-            "New-NetFirewallRule -DisplayName 'Sentry DNS' -Direction Outbound -Protocol UDP -RemotePort 53 -Action Allow -ErrorAction SilentlyContinue | Out-Null; New-NetFirewallRule -DisplayName 'Sentry HTTP' -Direction Outbound -Protocol TCP -RemotePort 80,443 -Action Allow -ErrorAction SilentlyContinue | Out-Null; Write-Output 'OK'"],
+            "New-NetFirewallRule -DisplayName 'Vindex DNS' -Direction Outbound -Protocol UDP -RemotePort 53 -Action Allow -ErrorAction SilentlyContinue | Out-Null; New-NetFirewallRule -DisplayName 'Vindex HTTP' -Direction Outbound -Protocol TCP -RemotePort 80,443 -Action Allow -ErrorAction SilentlyContinue | Out-Null; Write-Output 'OK'"],
             capture_output=True, text=True, timeout=15)
         return "Mode strict: tout bloque sauf DNS, HTTP, HTTPS"
     except:

@@ -1,8 +1,8 @@
-﻿# Sentry Creator Panel â€” Module PowerShell
-# Import: Import-Module .\Sentry_creator.psm1
+﻿# Vindex Creator Panel â€” Module PowerShell
+# Import: Import-Module .\Vindex_creator.psm1
 # Utilisation: See-PhareMachines, Start-PharePanel, Stop-PharePanel
 
-$Script:SentryDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Script:VindexDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 function Start-PharePanel {
     <#
@@ -12,7 +12,7 @@ function Start-PharePanel {
         Port du panel (defaut: 9090)
     #>
     param([int]$Port = 9090)
-    $result = & py "$Script:SentryDir\main.py" creator $Port 2>&1
+    $result = & py "$Script:VindexDir\main.py" creator $Port 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "[+] $result"
         Write-Host "[i] Ouvrez http://127.0.0.1:$Port dans votre navigateur"
@@ -26,7 +26,7 @@ function Stop-PharePanel {
     .SYNOPSIS
         Arrete le panel createur
     #>
-    $result = & py "$Script:SentryDir\main.py" creator stop 2>&1
+    $result = & py "$Script:VindexDir\main.py" creator stop 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "[-] $result"
     } else {
@@ -39,11 +39,11 @@ function Get-PhareStatus {
     .SYNOPSIS
         Affiche le statut du Phare et du panel createur
     #>
-    $result = & py "$Script:SentryDir\main.py" phare status 2>&1
+    $result = & py "$Script:VindexDir\main.py" phare status 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "[Phare] $result"
     }
-    $panel = & py "$Script:SentryDir\main.py" creator status 2>&1
+    $panel = & py "$Script:VindexDir\main.py" creator status 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "[Panel] $panel"
     }
@@ -109,7 +109,7 @@ function Start-PhareServer {
         [string]$Bind = "127.0.0.1",
         [string]$Token = $null
     )
-    $argsList = @("$Script:SentryDir\main.py", "phare", $Port, $Bind)
+    $argsList = @("$Script:VindexDir\main.py", "phare", $Port, $Bind)
     if ($Token) { $argsList += $Token }
     $result = & py $argsList 2>&1
     if ($LASTEXITCODE -eq 0) {
@@ -139,7 +139,7 @@ function Connect-PhareClient {
         Write-Error "Usage: Connect-PhareClient -Ip <ip_phare> [-Port 8089] [-Token '...']"
         return
     }
-    $argsList = @("$Script:SentryDir\main.py", "phare-client", $Ip, $Port)
+    $argsList = @("$Script:VindexDir\main.py", "phare-client", $Ip, $Port)
     if ($Token) { $argsList += $Token }
     $result = & py $argsList 2>&1
     if ($LASTEXITCODE -eq 0) {

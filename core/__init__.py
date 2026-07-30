@@ -1,4 +1,4 @@
-"""Sentry — Tous les modules"""
+"""Vindex — Tous les modules"""
 
 from core import network as net
 from core import antivirus as av

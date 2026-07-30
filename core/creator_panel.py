@@ -15,7 +15,7 @@ def _page_creator():
     lignes = []
     lignes.append("""<!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><title>Sentry Createur</title>
+<head><meta charset="UTF-8"><title>Vindex Createur</title>
 <meta http-equiv="refresh" content="10">
 <style>
 body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#c9d1d9;margin:0;padding:20px}
@@ -35,7 +35,7 @@ pre{background:#0d1117;padding:12px;border-radius:6px;font-size:13px;overflow-x:
 .badge.off{background:#3d0d0d;color:#f85149;border:1px solid #f85149}
 </style></head>
 <body>
-<h1>Sentry Panel Createur</h1>
+<h1>Vindex Panel Createur</h1>
 <div class="nav">
 <a href="/">Dashboard</a>
 <a href="/api/export">Export JSON</a>

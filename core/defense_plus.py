@@ -198,7 +198,7 @@ def verifier_brèche(email):
     suffix = h[5:]
     try:
         req = urllib.request.Request(f"https://api.pwnedpasswords.com/range/{prefix}",
-                                     headers={"User-Agent": "Sentry"})
+                                     headers={"User-Agent": "Vindex"})
         r = urllib.request.urlopen(req, timeout=10)
         body = r.read().decode("utf-8")
         for line in body.split("\n"):
@@ -331,11 +331,11 @@ def autoruns_deep():
 
 def creer_restore_point():
     """Cree un point de restauration systeme"""
-    r = _ps("Checkpoint-Computer -Description 'Sentry Restore' -RestorePointType MODIFY_SETTINGS -ErrorAction SilentlyContinue; Write-Output 'OK'", 60)
+    r = _ps("Checkpoint-Computer -Description 'Vindex Restore' -RestorePointType MODIFY_SETTINGS -ErrorAction SilentlyContinue; Write-Output 'OK'", 60)
     if "ok" in r.lower():
         return "Point de restauration cree"
     try:
-        r2 = _ps("Enable-ComputerRestore -Drive 'C:\\' -ErrorAction SilentlyContinue; Checkpoint-Computer -Description 'Sentry Restore' -RestorePointType MODIFY_SETTINGS -ErrorAction SilentlyContinue; Write-Output 'OK'", 60)
+        r2 = _ps("Enable-ComputerRestore -Drive 'C:\\' -ErrorAction SilentlyContinue; Checkpoint-Computer -Description 'Vindex Restore' -RestorePointType MODIFY_SETTINGS -ErrorAction SilentlyContinue; Write-Output 'OK'", 60)
         if "ok" in r2.lower():
             return "Protection activee + point de restauration cree"
     except:

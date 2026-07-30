@@ -1,10 +1,10 @@
 ﻿import datetime
 from core import network as net, antivirus as av, process as proc, system as sysinfo, security as sec, wifi, journaux as logs
 
-def generer(chemin="rapport_sentry.html"):
+def generer(chemin="rapport_vindex.html"):
     try:
         sections = [
-            "<h1>Rapport Sentry Outil</h1>",
+            "<h1>Rapport Vindex</h1>",
             f"<p>Genere le {datetime.datetime.now()}</p>",
         ]
 
@@ -38,7 +38,7 @@ def generer(chemin="rapport_sentry.html"):
 
         html = f"""<!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><title>Rapport Sentry</title>
+<head><meta charset="UTF-8"><title>Rapport Vindex</title>
 <style>
 body {{ font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f5f5f5; }}
 h1 {{ color: #0d6efd; }}

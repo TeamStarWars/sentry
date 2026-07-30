@@ -16,9 +16,9 @@ env/
 venv/
 .env
 *.aurelyos
-*.sentry
+*.vindex
 capture_*.csv
-sentry_backup_*.zip
-sentry_alerts.json
-sentry_profile.json
-sentry_tasks.json
+vindex_backup_*.zip
+vindex_alerts.json
+vindex_profile.json
+vindex_tasks.json

@@ -26,7 +26,7 @@ def _analyser():
                     msg = f"RAM elevee: {nom}.exe PID {pid} = {ram}MB"
                     SUSPECTS_TROUVES.append(nom)
                     ajouter_entree("PROTECT", msg)
-                    alerte.envoyer(msg, "Sentry - Alerte RAM")
+                    alerte.envoyer(msg, "Vindex - Alerte RAM")
 
             r2 = subprocess.run(["netstat", "-n"], capture_output=True, text=True, encoding="cp1252", errors="replace", timeout=3)
             etablies = len([l for l in r2.stdout.split("\n") if "ESTABLISHED" in l])

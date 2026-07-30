@@ -80,7 +80,7 @@ def _page_dashboard():
     bind_info = "local" if BIND_ADDR == "127.0.0.1" else f"LAN ({BIND_ADDR})"
     return f"""<!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><title>Sentry Phare</title>
+<head><meta charset="UTF-8"><title>Vindex Phare</title>
 <meta http-equiv="refresh" content="15">
 <style>
 body {{ font-family:'Segoe UI',sans-serif; background:#0d1117; color:#c9d1d9; margin:0; padding:20px; }}
@@ -97,7 +97,7 @@ th {{ color:#58a6ff; }}
 .warn {{ background:#1b1b1b; border:1px solid #f0883e; border-radius:8px; padding:12px; margin:14px 0; color:#f0883e; text-align:center; }}
 </style></head>
 <body>
-<h1>Sentry Cloud Phare</h1>
+<h1>Vindex Cloud Phare</h1>
 <div class="nav">
 <a href="/">Dashboard</a>
 <a href="/api/status">API</a>

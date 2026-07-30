@@ -1,6 +1,6 @@
 ﻿import json, os, datetime
 
-PROFILE_FILE = os.path.join(os.path.dirname(__file__), "..", "sentry_profile.json")
+PROFILE_FILE = os.path.join(os.path.dirname(__file__), "..", "vindex_profile.json")
 
 def sauvegarder(nom="default"):
     profile = {

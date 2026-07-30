@@ -21,7 +21,7 @@ def configurer_webhook(url):
         json.dump(config, f, indent=2)
     return "Notification webhook configuree"
 
-def envoyer(message, sujet="Sentry Alerte"):
+def envoyer(message, sujet="Vindex Alerte"):
     if not os.path.exists(CONFIG_FILE):
         return "Aucune configuration. Utilisez 'alerte-email' ou 'alerte-webhook'"
     try:

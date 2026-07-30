@@ -4,7 +4,7 @@ def lancer_navigateur_securise(url=None):
     if not url:
         url = "about:blank"
     try:
-        profile_dir = os.path.join(tempfile.gettempdir(), "sentry_safepay_profile")
+        profile_dir = os.path.join(tempfile.gettempdir(), "vindex_safepay_profile")
         os.makedirs(profile_dir, exist_ok=True)
 
         prefs = {
@@ -59,7 +59,7 @@ def lancer_navigateur_securise(url=None):
         return f"Erreur: {e}"
 
 def nettoyer_profil():
-    profile_dir = os.path.join(tempfile.gettempdir(), "sentry_safepay_profile")
+    profile_dir = os.path.join(tempfile.gettempdir(), "vindex_safepay_profile")
     try:
         import shutil
         if os.path.isdir(profile_dir):
