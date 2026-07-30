@@ -1,0 +1,3 @@
+# Aurelyos Outil — Dépendances
+# Aucune dépendance externe requise (uniquement bibliothèque standard Python)
+# Fonctionne sur Windows 10/11 avec PowerShell
